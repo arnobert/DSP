@@ -1,4 +1,5 @@
 mod dsp_8b10b_encoder;
+mod dsp_8b10b_decoder;
 
 fn main() {
 
