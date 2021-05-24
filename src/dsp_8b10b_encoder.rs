@@ -22,14 +22,12 @@ impl DSP8b10bEncoder {
         let c0 = word.count_zeros() as i8 - 6 ;
         let c1 = word.count_ones() as i8;
 
-        print!("Zeros: {}\n", c0);
-        print!("Ones: {}\n", c1);
-
         c1 - c0
     }
 
     pub fn encode(&mut self, word: u8) -> u16{
         let old_disp : i8 = self.disparity;
+
 
         // 000XXXXX
         let lobits : u8 = word & 0b00011111;
@@ -114,23 +112,10 @@ impl DSP8b10bEncoder {
 
 
         // XXX00000
-        let hibits : u8 = word & 0b11100000;
-        let n_hibits : u8;
+        let hibits : u8 = (word & 0b11100000) >> 5;
+        let n_hibits : u16;
 
         if old_disp == -1 {
-            n_hibits = match hibits {
-                0 => 0b0100,
-                1 => 0b1001,
-                2 => 0b0101,
-                3 => 0b0011,
-                4 => 0b0010,
-                5 => 0b1010,
-                6 => 0b0110,
-                7 => 0b0001,
-                _ => 0
-            };
-        }
-        else {
             n_hibits = match hibits {
                 0 => 0b1011,
                 1 => 0b1001,
@@ -141,18 +126,28 @@ impl DSP8b10bEncoder {
                 6 => 0b0110,
                 7 => 0b1110,
                 _ => 0
+            };
+        }
+        else {
+            n_hibits = match hibits {
+                0 => 0b0100,
+                1 => 0b1001,
+                2 => 0b0101,
+                3 => 0b0011,
+                4 => 0b0010,
+                5 => 0b1010,
+                6 => 0b0110,
+                7 => 0b0001,
+                _ => 0
             }
         };
 
-        let w_out : u16 = ((n_hibits as u16) << 6)  + n_lobits as u16;
-
+        let w_out : u16 = (n_hibits << 6) + n_lobits as u16;
         let n_disp = self.calc_disp(w_out);
 
         if n_disp != 0 {
             self.swap_disp();
         }
-
-        print!("Disparity: {}\n", n_disp);
 
         w_out
     }

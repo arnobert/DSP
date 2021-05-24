@@ -1,15 +1,13 @@
 pub struct DSP8b10bDecoder{
-    disparity : i8,
 }
 
 impl DSP8b10bDecoder {
     pub fn init() -> DSP8b10bDecoder {
-        let tdisp : i8 = -1;
-        DSP8b10bDecoder {disparity: tdisp}
+        DSP8b10bDecoder {}
     }
 
 
-    pub fn decode(&mut self, word: u16) -> u8{
+    pub fn decode(&mut self, word: u16) -> u16{
 
         //0000XXXXXX
 
@@ -49,46 +47,47 @@ impl DSP8b10bDecoder {
             0b101110 => 29,
             0b011110 => 30,
             0b101011 => 31,
-
             0b011000 => 0,
             0b100010 => 1,
             0b010010 => 2,
-
             0b001010 => 4,
-
-
             0b000111 => 7,
             0b000110 => 8,
-
-
-
-
-
-
             0b101000 => 15,
             0b100100 => 16,
-
-
-
-
-
-
             0b000101 => 23,
             0b001100 => 24,
-
-
             0b001001 => 27,
-
             0b010001 => 29,
             0b100001 => 30,
             0b010100 => 31,
-
-
-
             _ => 0
         };
 
+
         //XXXX000000
-        0
+
+        let hibits16 : u16 = (word & 0b1111000000) >> 6;
+        let hibits = hibits16 as u8;
+        let n_hibits : u16;
+
+        n_hibits = match hibits {
+            0b0100 => 0,
+            0b1001 => 1,
+            0b0101 => 2,
+            0b0011 => 3,
+            0b0010 => 4,
+            0b1010 => 5,
+            0b0110 => 6,
+            0b0001 => 7,
+            0b1011 => 0,
+            0b1100 => 3,
+            0b1101 => 4,
+            0b1110 => 7,
+            _ => 0
+        };
+
+        (n_hibits << 5) + n_lobits
+
     }
 }
